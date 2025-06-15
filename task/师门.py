@@ -17,18 +17,20 @@ def back_to_master():
 
 def find_and_click_master():
     # 创建 image 类的实例，使用师傅的图片
-    ImageMatcher = image("master.png", threshold=0.6)  # 假设师傅的图片名为 master.png
+    ImageMatcher = image("master.png", threshold=0.7)  # 师父 master.png
     position = ImageMatcher.find_image_position()
 
     if position:
         x, y = position
         print(f"找到《师父》，坐标: ({x}, {y})")
-        mouse.move_and_click(x-15, y+10,'left',2,2)
+        # mouse.move_and_click(x-15, y+10,'left')
+        mouse.move_and_click(x, y, 'left')
         time.sleep(1)
         print(f"鼠标位置，坐标: ({pyautogui.position().x}, {pyautogui.position().y})")
         return True
     else:
         print("未找到目标图片")
+        time.sleep(1)
         find_and_click_master();
         return False
 
@@ -43,7 +45,7 @@ def click_task_button():
     if position:
         x, y = position
         print(f"找到《任务按钮》，坐标: ({x}, {y})")
-        mouse.move_and_click(x-15, y+15,'left',2,2)
+        mouse.move_and_click(x, y,'left')
         time.sleep(1)
         print(f"鼠标位置，坐标: ({pyautogui.position().x}, {pyautogui.position().y})")
         return True
@@ -70,10 +72,15 @@ def recognize_task():
 if __name__ == "__main__":
     try:
         time.sleep(2)
-        back_to_master()
+
+        # print("上次识别鼠标位置，坐标: (1341, 317)")
+        # current_x, current_y = pyautogui.position()
+        # print(f"当前鼠标位置: ({current_x}, {current_y})")# (1354, 296)，(1338, 303),(1342, 326)，(1335, 296)，(1344, 301)
+
+        # back_to_master()
         find_and_click_master()
-        time.sleep(10)
-        click_task_button()
+        # time.sleep(10)
+        # click_task_button()
         # recognize_task()
         print("师门任务流程完成!")
     except KeyboardInterrupt:
