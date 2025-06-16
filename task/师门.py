@@ -31,7 +31,7 @@ def find_and_click_master():
     else:
         print("未找到目标图片")
         time.sleep(1)
-        find_and_click_master();
+            find_and_click_master();
         return False
 
 
