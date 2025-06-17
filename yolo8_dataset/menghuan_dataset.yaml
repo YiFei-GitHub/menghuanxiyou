@@ -1,0 +1,7 @@
+path: ../yolo8_dataset
+train: ../images/train  #训练集
+val: ../images/val      #验证集
+
+# 类别数量和名称
+nc: 1  # 类别数量（根据您的实际类别数修改）
+names: [ 'deep_button']  # 您的类别名称
