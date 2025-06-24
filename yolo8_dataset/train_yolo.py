@@ -1,18 +1,18 @@
-import torch  # 新增这一行
 from ultralytics import YOLO
 
 # 加载预训练模型
-model = YOLO('yolov8n.pt')  # 也可以使用yolov8s.pt, yolov8m.pt等
+model = YOLO('yolov8s.pt')  # 使用YOLOv8s提升检测能力
 
 # 训练模型
-results = model.train(
-    data='../yolo8_dataset/menghuan_dataset.yaml',
-    epochs=100,
-    imgsz=640,
-    batch=8,
-    device='cuda' if torch.cuda.is_available() else 'cpu',
-    name='screen_detection'
-)
+model.train(
+    data='menghuan_dataset.yaml',  # 数据集配置文件
+    device=0,                    # 使用GPU 0（单GPU） pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+    epochs=100,                  # 延长训练轮次
+    batch=8,                     # 批量大小
+    imgsz=640,                   # 图像尺寸
+    augment=True,                # 启用数据增强
+    multi_scale=True,            # 多尺度训练
+    lr0=0.001,                   # 初始学习率
+    name='menghuan_train_v2'      # 训练任务名称
 
-# 导出最佳模型
-model.export(format='pt')
+)
