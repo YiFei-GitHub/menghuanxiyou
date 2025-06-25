@@ -220,12 +220,6 @@ def movefb(hwnd, left, top, window_width, window_height, model, 要点击的目�
     return False
 
 
-
-
-
-
-
-
 hwnd = 检测框模块.find_window()
 if hwnd is None:
     print("未找到标题中包含'梦幻西游'的窗口")
@@ -233,9 +227,6 @@ else:
     left, top, right, bottom = win32gui.GetWindowRect(hwnd)
     window_width = right - left
     window_height = bottom - top
-
-
-
 
 
 def test_movefb_function():
@@ -262,7 +253,7 @@ def test_movefb_function():
         print(f"窗口位置: left={left}, top={top}, 大小: width={window_width}, height={window_height}")
 
         # 4. 设置测试参数
-        要点击的目标类 = 1  # 假设目标类别ID为0，根据实际情况修改
+        要点击的目标类 = 1  # 假设目标类别ID为1，根据实际情况修改
         offset_x, offset_y = 0, 0  # 鼠标点击偏移量
         置信度 = 0.5  # 检测置信度阈值
         click_type = 'left'  # 点击类型
@@ -306,4 +297,3 @@ def test_movefb_function():
 
 if __name__ == "__main__":
     test_movefb_function()
-

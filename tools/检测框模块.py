@@ -10,8 +10,6 @@ import time
 # 用于标记模块是否被加载
 MODULE_LOADED = True
 
-
-
 # 加载 YOLO 模型
 #model = YOLO("H:\yol\yolo\v11\runs\detect\train37\weights\best.pt")
 model = YOLO("../yolo8_dataset/runs/detect/menghuan_train_v2/weights/best.pt")
