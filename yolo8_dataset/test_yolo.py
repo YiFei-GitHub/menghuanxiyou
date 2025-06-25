@@ -20,7 +20,7 @@ def detect_video(video_path, model_path, output_path):
 
         # 调整分辨率与训练时一致
         frame_resized = cv2.resize(frame, (640, 640))
-        results = model(frame_resized, conf=0.2, iou=0.3)
+        results = model(frame_resized, conf=0.7, iou=0.8)
 
         # 绘制检测结果并还原到原分辨率
         annotated_frame = results[0].plot()
