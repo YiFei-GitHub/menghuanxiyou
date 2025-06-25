@@ -38,7 +38,7 @@ def extract_frames(video_path, output_folder, frames_per_second=1):
         # 每秒保存一帧
         if frame_count % frame_interval == 0:
             # 构造输出文件名
-            output_path = os.path.join(output_folder, f"frame_{saved_count:04d}.jpg")
+            output_path = os.path.join(output_folder, f"{saved_count:04d}.jpg")
             cv2.imwrite(output_path, frame)
             saved_count += 1
             print(f"已保存: {output_path}")
@@ -51,7 +51,7 @@ def extract_frames(video_path, output_folder, frames_per_second=1):
 
 # 使用示例
 if __name__ == "__main__":
-    video_file = "4.mp4"  # 替换为你的视频文件路径
-    output_dir = video_file+"output_frames"  # 输出文件夹
+    video_file = "6.mp4"  # 替换为你的视频文件路径
+    output_dir = video_file+"output"  # 输出文件夹
 
     extract_frames(video_file, output_dir)

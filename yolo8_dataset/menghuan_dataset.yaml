@@ -3,5 +3,5 @@ train: ../images/train  #训练集
 val: ../images/val      #验证集
 
 # 类别数量和名称
-nc: 2  # 类别数量（根据您的实际类别数修改）
-names: [ 'shubiao','oneself']  # 鼠标  、人物
+nc: 1  # 类别数量（根据您的实际类别数修改）
+names: [ 'guanyin',]  # 观音姐姐

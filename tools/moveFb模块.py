@@ -246,7 +246,7 @@ def test_movefb_function():
 
         # 2. 加载YOLO模型（使用预训练模型进行测试）
         print("加载YOLO模型...")
-        model = YOLO("../yolo8_dataset/yolov8n.pt")  # 使用YOLOv8n预训练模型，可根据需要替换
+        model = YOLO("../yolo8_dataset/runs/detect/menghuan_train_v2/weights/best.pt")  # 使用YOLOv8n预训练模型，可根据需要替换
 
         # 3. 获取目标窗口信息（标题包含“梦幻西游”的窗口）
         print("获取目标窗口...")
@@ -262,11 +262,11 @@ def test_movefb_function():
         print(f"窗口位置: left={left}, top={top}, 大小: width={window_width}, height={window_height}")
 
         # 4. 设置测试参数
-        要点击的目标类 = 0  # 假设目标类别ID为0，根据实际情况修改
+        要点击的目标类 = 1  # 假设目标类别ID为0，根据实际情况修改
         offset_x, offset_y = 0, 0  # 鼠标点击偏移量
         置信度 = 0.5  # 检测置信度阈值
         click_type = 'left'  # 点击类型
-        如果不成功循环执行的次数 = 3  # 失败时的循环次数
+        如果不成功循环执行的次数 = 10  # 失败时的循环次数
         success_image = None  # 成功条件图片或类别ID，测试时可设为None
 
         # 5. 调用movefb函数
@@ -279,7 +279,7 @@ def test_movefb_function():
             window_width=window_width,
             window_height=window_height,
             model=model,
-            要点击的目标类=2,
+            要点击的目标类=1,
             offset_x=offset_x,
             offset_y=offset_y,
             置信度=0.7,
