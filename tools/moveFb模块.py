@@ -46,6 +46,7 @@ def movefb(hwnd, left, top, window_width, window_height, model, 要点击的目�
 
         # 检测不到类别 0 时，尝试使用图像匹配检测鼠标形状变化
         if dart_center_x is None and dart_center_y is None and mouse_shape_image:
+            print(f"进入图片检测到飞镖逻辑")
             template = cv2.imread(mouse_shape_image, 0)
             screenshot_gray = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
             result = cv2.matchTemplate(screenshot_gray, template, cv2.TM_CCOEFF_NORMED)
@@ -113,7 +114,10 @@ def movefb(hwnd, left, top, window_width, window_height, model, 要点击的目�
                             return True
                 continue
 
+        #目标 - 飞镖 - 精确点击
         if found_target and target_center_x is not None and target_center_y is not None:
+
+            print(f"符合预期，准备点击了")
             # 先移动鼠标到目标位置
             target_screen_x = left + target_center_x
             target_screen_y = top + target_center_y
