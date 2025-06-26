@@ -36,6 +36,7 @@ def movefb(hwnd, left, top, window_width, window_height, model, 要点击的目�
                     x1, y1, x2, y2 = box.xyxy[0].astype(int)
                     dart_center_x = int((x1 + x2) / 2) - 20  # 飞镖尖端 x 坐标
                     dart_center_y = int((y1 + y2) / 2) - 20  # 飞镖尖端 y 坐标
+                    print(f"检测到飞镖，类别 ID: {class_id}，坐标x{dart_center_x}，坐标y{dart_center_y}")
 
                 if class_id == 要点击的目标类 and conf >= 置信度:
                     found_target = True
@@ -45,6 +46,7 @@ def movefb(hwnd, left, top, window_width, window_height, model, 要点击的目�
 
         # 检测不到类别 0 时，尝试使用图像匹配检测鼠标形状变化
         if dart_center_x is None and dart_center_y is None and mouse_shape_image:
+            print(f"进入图片检测到飞镖逻辑")
             template = cv2.imread(mouse_shape_image, 0)
             screenshot_gray = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
             result = cv2.matchTemplate(screenshot_gray, template, cv2.TM_CCOEFF_NORMED)
@@ -112,7 +114,10 @@ def movefb(hwnd, left, top, window_width, window_height, model, 要点击的目�
                             return True
                 continue
 
+        #目标 - 飞镖 - 精确点击
         if found_target and target_center_x is not None and target_center_y is not None:
+
+            print(f"符合预期，准备点击了")
             # 先移动鼠标到目标位置
             target_screen_x = left + target_center_x
             target_screen_y = top + target_center_y
@@ -254,10 +259,10 @@ def test_movefb_function():
 
         # 4. 设置测试参数
         要点击的目标类 = 1  # 假设目标类别ID为1，根据实际情况修改
-        offset_x, offset_y = 0, 0  # 鼠标点击偏移量
+        offset_x, offset_y = -10, -10  # 鼠标点击偏移量
         置信度 = 0.5  # 检测置信度阈值
         click_type = 'left'  # 点击类型
-        如果不成功循环执行的次数 = 10  # 失败时的循环次数
+        如果不成功循环执行的次数 = 50  # 失败时的循环次数
         success_image = None  # 成功条件图片或类别ID，测试时可设为None
 
         # 5. 调用movefb函数
