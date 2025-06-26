@@ -254,10 +254,10 @@ def test_movefb_function():
 
         # 4. 设置测试参数
         要点击的目标类 = 1  # 假设目标类别ID为1，根据实际情况修改
-        offset_x, offset_y = 0, 0  # 鼠标点击偏移量
+        offset_x, offset_y = -10, -10  # 鼠标点击偏移量
         置信度 = 0.5  # 检测置信度阈值
         click_type = 'left'  # 点击类型
-        如果不成功循环执行的次数 = 10  # 失败时的循环次数
+        如果不成功循环执行的次数 = 50  # 失败时的循环次数
         success_image = None  # 成功条件图片或类别ID，测试时可设为None
 
         # 5. 调用movefb函数
