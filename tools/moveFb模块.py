@@ -242,7 +242,7 @@ def test_movefb_function():
 
         # 2. 加载YOLO模型（使用预训练模型进行测试）
         print("加载YOLO模型...")
-        model = YOLO("../yolo8_dataset/runs/detect/menghuan_train_v2/weights/best.pt")  # 使用YOLOv8n预训练模型，可根据需要替换
+        model = YOLO("../yolo8_dataset/runs/detect/menghuan_train_v246/weights/best.pt")  # 使用YOLOv8n预训练模型，可根据需要替换
 
         # 3. 获取目标窗口信息（标题包含“梦幻西游”的窗口）
         print("获取目标窗口...")
@@ -255,7 +255,7 @@ def test_movefb_function():
         left, top, right, bottom = win32gui.GetWindowRect(hwnd)
         window_width = right - left
         window_height = bottom - top
-        print(f"窗口位置: left={left}, top={top}, 大小: width={window_width}, height={window_height}")
+        print(f"找到梦幻西游窗口位置: left={left}, top={top}, 大小: width={window_width}, height={window_height}")
 
         # 4. 设置测试参数
         要点击的目标类 = 1  # 假设目标类别ID为1，根据实际情况修改

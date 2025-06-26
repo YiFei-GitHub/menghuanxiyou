@@ -1,3 +1,4 @@
 .idea/vcs.xml
 /yolo8_dataset/runs
 *.cache
+*.pyc
