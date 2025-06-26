@@ -36,6 +36,7 @@ def movefb(hwnd, left, top, window_width, window_height, model, 要点击的目�
                     x1, y1, x2, y2 = box.xyxy[0].astype(int)
                     dart_center_x = int((x1 + x2) / 2) - 20  # 飞镖尖端 x 坐标
                     dart_center_y = int((y1 + y2) / 2) - 20  # 飞镖尖端 y 坐标
+                    print(f"检测到飞镖，类别 ID: {class_id}，坐标x{dart_center_x}，坐标y{dart_center_y}")
 
                 if class_id == 要点击的目标类 and conf >= 置信度:
                     found_target = True
