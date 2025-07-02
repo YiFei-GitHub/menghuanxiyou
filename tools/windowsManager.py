@@ -1,85 +1,80 @@
 import win32gui
 import win32con
+import win32api
 import time
+import re
 
 
-def find_all_windows():
-    """查找所有窗口并打印标题和句柄"""
+def find_all_visible_windows():
+    """查找并返回所有可见窗口的句柄和标题"""
+    windows = []
 
-    def enum_windows_callback(hwnd, windows):
+    def enum_callback(hwnd, windows_list):
+        """窗口枚举回调函数"""
         if win32gui.IsWindowVisible(hwnd) and win32gui.GetWindowText(hwnd):
-            windows.append((hwnd, win32gui.GetWindowText(hwnd)))
+            windows_list.append((hwnd, win32gui.GetWindowText(hwnd)))
         return True
 
-    windows = []
-    win32gui.EnumWindows(enum_windows_callback, windows)
+    win32gui.EnumWindows(enum_callback, windows)
     return windows
 
 
-def print_all_windows():
-    """打印所有可见窗口的标题和句柄"""
-    windows = find_all_windows()
-    print("当前可见窗口列表：")
+def move_game_window():
+    """
+    查找梦幻西游游戏窗口并移动到屏幕左上角
+    窗口标题匹配模式: "梦幻西游 ONLINE.*"
+    """
+    # 窗口标题匹配模式
+    window_pattern = re.compile(r"梦幻西游 ONLINE.*")
+    windows = find_all_visible_windows()
+    target_hwnd = None
+
+    # 查找匹配的游戏窗口
     for hwnd, title in windows:
-        print(f"句柄: {hwnd}, 标题: {title}")
-
-
-def move_game_window(window_title=None):
-    """查找并移动游戏窗口到屏幕左上角"""
-    if window_title is None:
-        # 游戏窗口标题，可能需要根据实际情况调整
-        window_titles = ["梦幻西游 ONLINE"]
-    else:
-        window_titles = [window_title]
-
-    # 尝试查找游戏窗口
-    hwnd = None
-    for title in window_titles:
-        hwnd = win32gui.FindWindow(None, title)
-        if hwnd:
-            print(f"找到窗口: {title}")
+        if window_pattern.match(title):
+            print(f"找到游戏窗口: {title}")
+            target_hwnd = hwnd
             break
 
-    if not hwnd:
-        print("未找到游戏窗口，请确保游戏已启动")
-        # 打印所有可见窗口帮助调试
-        print("\n尝试查找以下窗口标题：")
-        for title in window_titles:
-            print(f"- {title}")
-        print("\n当前可见窗口列表：")
-        windows = find_all_windows()
+    # 未找到窗口的处理
+    if not target_hwnd:
+        print("错误: 未找到游戏窗口")
+        print("当前可见窗口列表:")
         for _, title in windows:
-            print(f"- {title}")
-        return
+            print(f"  - {title}")
+        return False
 
-    # 获取窗口当前状态
-    window_style = win32gui.GetWindowLong(hwnd, win32con.GWL_STYLE)
+    try:
+        # 检查并恢复最小化窗口
+        if win32gui.IsIconic(target_hwnd):
+            win32gui.ShowWindow(target_hwnd, win32con.SW_RESTORE)
+            time.sleep(0.3)  # 给窗口恢复的时间
 
-    # 如果窗口是最小化状态，先恢复
-    if window_style & win32con.WS_MINIMIZE:
-        win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-        time.sleep(0.5)  # 等待窗口恢复
+        # 获取窗口当前位置和大小
+        left, top, right, bottom = win32gui.GetWindowRect(target_hwnd)
+        current_width = right - left
+        current_height = bottom - top
 
-    # 获取屏幕分辨率
-    screen_width = win32gui.GetSystemMetrics(win32con.SM_CXSCREEN)
-    screen_height = win32gui.GetSystemMetrics(win32con.SM_CYSCREEN)
+        # 移动窗口到左上角(0,0)，保持原有大小
+        win32gui.SetWindowPos(
+            target_hwnd,
+            win32con.HWND_TOP,  # 置于顶层
+            0, 0,  # 左上角位置
+            current_width, current_height,  # 保持原有大小
+            win32con.SWP_SHOWWINDOW
+        )
 
-    # 设置窗口位置和大小
-    x = 0
-    y = 0
-    width = int(screen_width * 0.75)
-    height = int(screen_height * 0.8)
+        print(f"窗口已移动到左上角(0,0)，大小保持不变({current_width}x{current_height})")
+        return True
 
-    # 移动窗口
-    win32gui.SetWindowPos(
-        hwnd,
-        win32con.HWND_TOP,  # 窗口置顶
-        x, y, width, height,
-        win32con.SWP_SHOWWINDOW  # 确保窗口可见
-    )
-
-    print(f"窗口已移动到位置: ({x}, {y})，大小: {width}x{height}")
+    except Exception as e:
+        print(f"操作失败: {str(e)}")
+        return False
 
 
 if __name__ == "__main__":
-    move_game_window()
+    print("开始定位并移动梦幻西游窗口...")
+    if move_game_window():
+        print("操作成功完成!")
+    else:
+        print("操作未完成，请检查问题后重试")
