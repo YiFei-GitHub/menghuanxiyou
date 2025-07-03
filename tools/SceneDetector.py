@@ -9,6 +9,7 @@ from GameWindowUtils import GameWindowUtils  # 导入窗口工具类
 
 
 class SceneDetector:
+
     def __init__(self, template_dir="../images/game_templates", debug_dir="debug_screenshots"):
         self.game_hwnd = None
         self.game_rect = None
@@ -57,8 +58,7 @@ class SceneDetector:
                         rect_info["width"],
                         rect_info["height"]
                     )
-                    self.print_log(f"找到游戏窗口: {title}")
-                    self.print_log(f"窗口位置: {self.game_rect}")
+                    self.print_log(f"找到游戏窗口: {title}，窗口位置: {self.game_rect}")
                     return True
                 else:
                     self.print_log("获取窗口位置失败", "warning")
@@ -132,7 +132,7 @@ class SceneDetector:
             return False
 
     def detect_scene(self, screen):
-        """检测当前场景"""
+        """检测当前场景（修改版：只要包含模板就算匹配成功）"""
         self.last_match_info = {"scene": "未知", "confidence": 0.0, "details": []}
 
         if screen is None:
@@ -144,55 +144,58 @@ class SceneDetector:
             return "未知", 0.0
 
         best_match = {"name": "未知", "score": 0}
-
-        # 转换为灰度图
         gray_screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
 
-        # 检查每个模板
+        # 遍历所有模板
         for scene_name, template in self.templates.items():
-            # 转换为灰度图
             gray_template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-
-            # 获取模板尺寸
             h, w = gray_template.shape
 
-            # 如果模板比屏幕大，调整模板大小
+            # 调整模板大小（如果必要）
             if h > gray_screen.shape[0] or w > gray_screen.shape[1]:
                 scale = min(gray_screen.shape[0] / h, gray_screen.shape[1] / w)
-                new_w = int(w * scale)
-                new_h = int(h * scale)
-                gray_template = cv2.resize(gray_template, (new_w, new_h))
-                self.print_log(f"调整模板大小: {scene_name} -> {new_w}x{new_h}", "debug")
+                gray_template = cv2.resize(gray_template, (int(w * scale), int(h * scale)))
+                self.print_log(f"调整模板大小: {scene_name}", "debug")
 
             # 模板匹配
             res = cv2.matchTemplate(gray_screen, gray_template, cv2.TM_CCOEFF_NORMED)
-            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+
+            # 寻找所有匹配度超过阈值的区域
+            threshold = 0.6  # 降低阈值，允许部分匹配
+            locations = np.where(res >= threshold)
+
+            # 计算匹配区域的数量和覆盖面积
+            match_count = len(locations[0])
+            match_area = match_count * (w * h) / (gray_screen.shape[0] * gray_screen.shape[1])
 
             # 记录匹配详情
             match_detail = {
                 "scene": scene_name,
-                "confidence": max_val,
-                "template_size": (w, h),
-                "match_location": max_loc
+                "match_count": match_count,
+                "match_area": match_area,
+                "max_confidence": np.max(res) if match_count > 0 else 0
             }
             self.last_match_info["details"].append(match_detail)
 
-            # 更新最佳匹配
-            if max_val > best_match["score"]:
-                best_match = {"name": scene_name, "score": max_val}
+            # 更新最佳匹配（改为基于匹配区域数量和面积）
+            score = match_count * match_area  # 综合评分
+            if score > best_match["score"]:
+                best_match = {"name": scene_name, "score": score, "confidence": match_detail["max_confidence"]}
 
         # 设置当前场景
         self.last_match_info["scene"] = best_match["name"]
-        self.last_match_info["confidence"] = best_match["score"]
+        self.last_match_info["confidence"] = best_match["confidence"]
 
-        if best_match["score"] > 0.7:
+        # 判断匹配是否成功（只要有匹配区域就算成功）
+        if best_match["score"] > 0 and best_match["confidence"] > 0.5:
             self.current_scene = best_match["name"]
+        else:
+            self.current_scene = "未知"
 
-        # 调试模式：保存匹配结果
         if self.debug_mode:
             self.save_debug_info(screen, best_match)
 
-        return self.current_scene, best_match["score"]
+        return self.current_scene, best_match["confidence"]
 
     def save_debug_info(self, screen, best_match):
         """保存调试信息"""
@@ -231,6 +234,13 @@ class SceneDetector:
             while True:
                 current_time = time.time()
                 screen = self.capture_game_screen()
+
+                # 等待按键输入后关闭窗口
+                #cv2.imshow("游戏截图预览", screen)
+                #cv2.waitKey(0)
+                #cv2.destroyAllWindows()
+                #self.print_log("按任意键关闭预览窗口")
+
                 scene, confidence = self.detect_scene(screen)
 
                 # 控制打印频率
@@ -302,6 +312,7 @@ class SceneDetector:
         print("4. 使用 '调试模式' 获取详细匹配信息")
 
     def run(self):
+
         """主运行函数"""
         print("\n" + "=" * 40)
         print("梦幻西游场景检测工具")
@@ -311,31 +322,31 @@ class SceneDetector:
         print("3. 启用调试模式 (保存匹配详情)")
         print("4. 分析检测问题")
         print("5. 退出")
-
-        try:
-            choice = input("\n请选择操作: ")
-
-            if choice == "1":
-                interval = float(input("输入检测间隔(秒，默认1): ") or 1)
-                self.detect_continuously(interval)
-            elif choice == "2":
-                template_path = input("输入模板图片路径: ")
-                scene_name = input("输入场景名称(可选，默认为文件名): ") or None
-                self.add_template(template_path, scene_name)
-            elif choice == "3":
-                self.debug_mode = True
-                print("✅ 已启用调试模式，所有匹配详情将保存到 debug_screenshots 目录")
-                input("按回车键返回...")
-            elif choice == "4":
-                self.analyze_problem()
-                input("\n按回车键返回...")
-            elif choice == "5":
-                return
-            else:
-                print("⚠️ 无效选择")
-        except KeyboardInterrupt:
-            print("\n操作取消")
-            return
+        self.detect_continuously(1)
+        # try:
+        #     choice = input("\n请选择操作: ")
+        #
+        #     if choice == "1":
+        #         interval = float(input("输入检测间隔(秒，默认1): ") or 1)
+        #         self.detect_continuously(interval)
+        #     elif choice == "2":
+        #         template_path = input("输入模板图片路径: ")
+        #         scene_name = input("输入场景名称(可选，默认为文件名): ") or None
+        #         self.add_template(template_path, scene_name)
+        #     elif choice == "3":
+        #         self.debug_mode = True
+        #         print("✅ 已启用调试模式，所有匹配详情将保存到 debug_screenshots 目录")
+        #         input("按回车键返回...")
+        #     elif choice == "4":
+        #         self.analyze_problem()
+        #         input("\n按回车键返回...")
+        #     elif choice == "5":
+        #         return
+        #     else:
+        #         print("⚠️ 无效选择")
+        # except KeyboardInterrupt:
+        #     print("\n操作取消")
+        #     return
 
         # 返回主菜单
         self.run()
